@@ -16,21 +16,36 @@ module Complain
   # Calls exception writer
   # @param [Exception] exc Exception to write.
   # @param [Mixed] logger Logger - can be `:stderr`, `:stdout` or should respond to `error` or `puts`
+  # @option [Boolean] :with_time - Write time to log, default: false
+  # @option [Boolean] :prefix - Prefix for entire log message (empty by default)
+  # @option [Boolean] :postfix - Postfix for entire log message (empty by default)
+  # @option [Boolean] :separator - String to use for concatenation ("\n" by default)
   # @option [Boolean] :skip_exc - By default (false) internal exceptions will be rescued and written to logger,
   #                   and exception will be raised only if second writing is failed;
   #                   when set to true exception will not be handled.
-  def self.call(exc, logger = :stderr, skip_exc: false)
+  def self.call(exc,
+                logger = :stderr,
+                with_time: false,
+                prefix: '',
+                postfix: '',
+                separator: "\n",
+                skip_exc: false)
+
     message = if exc.is_a?(Exception)
-                [exc.message, exc.backtrace.join("\n")].join("\n")
+                [exc.message, exc.backtrace.join(separator)]
               elsif exc.is_a?(String)
-                exc
+                [exc]
               elsif exc.respond_to?(:to_s)
-                exc.to_s
+                [exc.to_s]
               elsif exc.respond_to?(:inspect)
-                exc.inspect
+                [exc.inspect]
               else
-                "Message can't be processed at #{caller.join("\n")}"
+                ["Message can't be processed at #{caller.join(separator)}"]
               end
+
+    message.unshift(Time.now.to_s) if with_time
+    message = message.join(separator)
+    message = prefix + message + postfix
 
     if logger.nil? || :stderr == logger
       $stderr.puts message

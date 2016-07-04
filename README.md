@@ -22,8 +22,6 @@ Just replace
 
 ```ruby
 rescue => exc
-  $stderr.puts
-  $stderr.puts Time.now
   $stderr.puts exc.message
   $stderr.puts exc.backtrace.join("\n")
 end
