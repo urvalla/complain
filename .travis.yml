@@ -1,0 +1,15 @@
+language: ruby
+
+rvm:
+  - 2.0
+  - 2.1
+  - 2.2
+  - ruby-head
+  - rbx-2
+
+gemfile:
+  - Gemfile
+
+sudo: false
+
+script: "bundle exec rspec"
